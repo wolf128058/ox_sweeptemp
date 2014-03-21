@@ -1,4 +1,4 @@
-<?
+﻿<?
 /*	OXID SweepTemp
 	Author: jonas.hess@revier.de
 	Licence: GPLv3
@@ -6,6 +6,39 @@
 
 $tmp_folder = 'tmp';
 $tmp_garbage = Array();
+
+//alowed_ips
+$allowed_ips = array(
+    '111.222.333.444',
+    '555.666.777.888',
+    '999.111.222.333'
+);
+
+//Function to determine ip
+function getip() {
+    $ipaddress = 'UNKNOWN'; // Set the ipaddress to unknown
+    if ($_SERVER['HTTP_CLIENT_IP']) // Start capturing his ip
+        $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
+    else if($_SERVER['HTTP_X_FORWARDED_FOR'])
+        $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    else if($_SERVER['HTTP_X_FORWARDED'])
+        $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
+    else if($_SERVER['HTTP_FORWARDED_FOR'])
+        $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
+    else if($_SERVER['HTTP_FORWARDED'])
+        $ipaddress = $_SERVER['HTTP_FORWARDED'];
+    else if($_SERVER['REMOTE_ADDR'])
+        $ipaddress = $_SERVER['REMOTE_ADDR'];
+    else
+        $ipaddress = 'UNKNOWN'; // If it can't catch it
+
+    return $ipaddress;
+}
+
+if (!in_array($_SERVER['REMOTE_ADDR'], $allowed_ips))
+{
+    exit('Your IP is not allowed to sweep!');
+}
 
 //Define the Files to sweep by Regex
 $tmp_garbage[] = '^[0-9a-z\^\%A-Z_]*oxforgotpw[0-9a-z\^\%A-Z_]*\.php$';

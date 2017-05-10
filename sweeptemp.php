@@ -1,11 +1,12 @@
-﻿<?
+<?
 /*	OXID SweepTemp
 	Author: jonas.hess@revier.de
 	Licence: GPLv3
 */
 
-$tmp_folder = 'tmp';
+$tmp_folder  = 'tmp';
 $tmp_garbage = Array();
+$tmp_smarty  = Array();
 
 //alowed_ips
 $allowed_ips = array(
@@ -35,7 +36,7 @@ function getip() {
     return $ipaddress;
 }
 
-if (!in_array($_SERVER['REMOTE_ADDR'], $allowed_ips))
+if (!in_array(getip(), $allowed_ips))
 {
     exit('Your IP is not allowed to sweep!');
 }
@@ -44,6 +45,8 @@ if (!in_array($_SERVER['REMOTE_ADDR'], $allowed_ips))
 $tmp_garbage[] = '^[0-9a-z\^\%A-Z_]*oxforgotpw[0-9a-z\^\%A-Z_]*\.php$';
 $tmp_garbage[] = '^[0-9a-z\^%A-Z_]*oxcontent[0-9]*oxbaseshop\.php$';
 $tmp_garbage[] = '^[0-9a-z\^\%A-Z_]*\.tpl\.php$';
+$tmp_garbage[] = '^[0-9a-z\^\%A-Z_]*sort[0-9a-z\^\%A-Z_]*\.tpl\.php$';
+$tmp_garbage[] = '^[0-9a-z\^\%A-Z_]*basket[0-9a-z\^\%A-Z_]*\.tpl\.php$';
 $tmp_garbage[] = '^[0-9a-z\^%A-Z_]*\_i18n\.txt$';
 $tmp_garbage[] = '^[0-9a-z\^%A-Z_]*\_allfields\_1\.txt$';
 $tmp_garbage[] = '^oxpec\_[0-9a-z\^%A-Z_]*seo\.txt$';
@@ -55,7 +58,7 @@ $tmp_garbage[] = '^oxpec\_menu\_[0-9a-z\^%A-Z_]*\_xml\.txt$';
 $tmp_garbage[] = '^oxpec\_oxuser\_[0-9a-z\^%A-Z_]*\.txt$';
 $tmp_garbage[] = '^oxpec\_oxshops\_[0-9a-z\^%A-Z_]*\.txt$';
 
-//Scan folder an delete
+//Scan folder and delete
 
 $files = scandir($tmp_folder . '/');
 $count = 0;
@@ -69,6 +72,22 @@ foreach ($tmp_garbage as $regex)
 	}
 }
 
-echo $count . ' File(s) deleted!';
+// Sweep Smarty-TMP
+
+//Define the Files to sweep by Regex
+$smartyfiles = scandir($tmp_folder . '/smarty/');
+$smartycount = 0;
+
+
+foreach($smartyfiles as $file) {
+    if ($file != '.' && $file != '..')
+    {
+        unlink($tmp_folder . '/smarty/' . $file);                    
+        $smartycount++;
+    }
+}
+
+echo $count . ' Temp-File(s) deleted!';
+echo ' // ' . $smartycount . ' Smarty-Tempfile(s) deleted!';
 
 ?>

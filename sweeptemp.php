@@ -16,28 +16,53 @@ $allowed_ips = array(
 );
 
 //Function to determine ip
-function getip() {
-    $ipaddress = 'UNKNOWN'; // Set the ipaddress to unknown
-    if ($_SERVER['HTTP_CLIENT_IP']) // Start capturing his ip
-        $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
-    else if($_SERVER['HTTP_X_FORWARDED_FOR'])
-        $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
-    else if($_SERVER['HTTP_X_FORWARDED'])
-        $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
-    else if($_SERVER['HTTP_FORWARDED_FOR'])
-        $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
-    else if($_SERVER['HTTP_FORWARDED'])
-        $ipaddress = $_SERVER['HTTP_FORWARDED'];
-    else if($_SERVER['REMOTE_ADDR'])
-        $ipaddress = $_SERVER['REMOTE_ADDR'];
-    else
-        $ipaddress = 'UNKNOWN'; // If it can't catch it
+Class ServerInfo
+{
+    public $servervars;
 
-    return $ipaddress;
+    public function __construct($servervars)
+    {
+        $this->servervars = $servervars;
+    }
+
+    function getClientIP()
+    {
+        $ipaddress = 'UNKNOWN'; // Set the ipaddress to unknown
+        if ($this->servervars['HTTP_CLIENT_IP']) // Start capturing his ip
+        {
+            $ipaddress = $this->servervars['HTTP_CLIENT_IP'];
+        } else {
+            if ($this->servervars['HTTP_X_FORWARDED_FOR']) {
+                $ipaddress = $this->servervars['HTTP_X_FORWARDED_FOR'];
+            } else {
+                if ($this->servervars['HTTP_X_FORWARDED']) {
+                    $ipaddress = $this->servervars['HTTP_X_FORWARDED'];
+                } else {
+                    if ($this->servervars['HTTP_FORWARDED_FOR']) {
+                        $ipaddress = $this->servervars['HTTP_FORWARDED_FOR'];
+                    } else {
+                        if ($this->servervars['HTTP_FORWARDED']) {
+                            $ipaddress = $this->servervars['HTTP_FORWARDED'];
+                        } else {
+                            if ($this->servervars['REMOTE_ADDR']) {
+                                $ipaddress = $this->servervars['REMOTE_ADDR'];
+                            } else {
+                                $ipaddress = 'UNKNOWN';
+                            }
+                        }
+                    }
+                }
+            }
+        } // If it can't catch it
+
+        return $ipaddress;
+    }
 }
 
-if (!in_array(getip(), $allowed_ips))
-{
+$myServerInfo = new ServerInfo($_SERVER);
+
+
+if (!in_array($myServerInfo->getClientIP(), $allowed_ips)) {
     exit('Your IP is not allowed to sweep!');
 }
 
@@ -62,14 +87,13 @@ $tmp_garbage[] = '^oxpec\_oxshops\_[0-9a-z\^%A-Z_]*\.txt$';
 
 $files = scandir($tmp_folder . '/');
 $count = 0;
-foreach ($tmp_garbage as $regex)
-{
-	foreach($files as $file) {
-		if (preg_match('/' . $regex . '/', $file) && file_exists($tmp_folder . '/' . $file)) {
-			unlink($tmp_folder . '/' . $file);
-			$count++;
-		}
-	}
+foreach ($tmp_garbage as $regex) {
+    foreach ($files as $file) {
+        if (preg_match('/' . $regex . '/', $file) && file_exists($tmp_folder . '/' . $file)) {
+            unlink($tmp_folder . '/' . $file);
+            $count++;
+        }
+    }
 }
 
 // Sweep Smarty-TMP
@@ -79,10 +103,9 @@ $smartyfiles = scandir($tmp_folder . '/smarty/');
 $smartycount = 0;
 
 
-foreach($smartyfiles as $file) {
-    if ($file != '.' && $file != '..')
-    {
-        unlink($tmp_folder . '/smarty/' . $file);                    
+foreach ($smartyfiles as $file) {
+    if ($file != '.' && $file != '..') {
+        unlink($tmp_folder . '/smarty/' . $file);
         $smartycount++;
     }
 }

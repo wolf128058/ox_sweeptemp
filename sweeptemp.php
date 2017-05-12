@@ -31,30 +31,17 @@ Class ServerInfo
         if ($this->servervars['HTTP_CLIENT_IP']) // Start capturing his ip
         {
             $ipaddress = $this->servervars['HTTP_CLIENT_IP'];
-        } else {
-            if ($this->servervars['HTTP_X_FORWARDED_FOR']) {
-                $ipaddress = $this->servervars['HTTP_X_FORWARDED_FOR'];
-            } else {
-                if ($this->servervars['HTTP_X_FORWARDED']) {
-                    $ipaddress = $this->servervars['HTTP_X_FORWARDED'];
-                } else {
-                    if ($this->servervars['HTTP_FORWARDED_FOR']) {
-                        $ipaddress = $this->servervars['HTTP_FORWARDED_FOR'];
-                    } else {
-                        if ($this->servervars['HTTP_FORWARDED']) {
-                            $ipaddress = $this->servervars['HTTP_FORWARDED'];
-                        } else {
-                            if ($this->servervars['REMOTE_ADDR']) {
-                                $ipaddress = $this->servervars['REMOTE_ADDR'];
-                            } else {
-                                $ipaddress = 'UNKNOWN';
-                            }
-                        }
-                    }
-                }
-            }
-        } // If it can't catch it
-
+        } elseif ($this->servervars['HTTP_X_FORWARDED_FOR']) {
+            $ipaddress = $this->servervars['HTTP_X_FORWARDED_FOR'];
+        } elseif ($this->servervars['HTTP_X_FORWARDED']) {
+            $ipaddress = $this->servervars['HTTP_X_FORWARDED'];
+        } elseif ($this->servervars['HTTP_FORWARDED_FOR']) {
+            $ipaddress = $this->servervars['HTTP_FORWARDED_FOR'];
+        } elseif ($this->servervars['HTTP_FORWARDED']) {
+            $ipaddress = $this->servervars['HTTP_FORWARDED'];
+        } elseif ($this->servervars['REMOTE_ADDR']) {
+            $ipaddress = $this->servervars['REMOTE_ADDR'];
+        }
         return $ipaddress;
     }
 }
